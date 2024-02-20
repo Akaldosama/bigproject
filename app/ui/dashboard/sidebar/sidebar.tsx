@@ -92,6 +92,7 @@ const menuItems:MenuItem[] = [
 export default function Sidebar() {
   return (
     <div className={styles.container}>
+      <div className={styles.user}>
       <Image 
       src='/noavatar.jpg'
       className={styles.userImage}
@@ -102,6 +103,7 @@ export default function Sidebar() {
       <div className={styles.userDetail}>
         <span className={styles.username}>John Doe</span>
         <span className={styles.userTitle}>Administrator</span>
+      </div>
       </div>
       <ul>
         {
