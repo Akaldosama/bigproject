@@ -3,8 +3,12 @@ import styles from '../../ui/dashboard/users/users.module.css'
 import Link from 'next/link'
 import Image from 'next/image'
 import Search from '@/app/ui/dashboard/search/search'
+import { fetchUsers } from '@/app/lib/data'
 
-export default function Users() {
+export default async function Users({searchParams}: {searchParams:{q:string}}) {
+  const q = searchParams?.q || ''
+  const users = await fetchUsers(q)
+  console.log(users, "users")
   return (
     <div className={styles.container}>
       <div className={styles.top}>
@@ -25,25 +29,30 @@ export default function Users() {
           </tr>
         </thead>
         <tbody>
-          <tr>
+          {
+            users?.map((user) => {
+              return <tr key={user._id}>
             <td>
               <div className={styles.user}>
-                <Image src='/noavatar.jpg' alt='' width={50} height={50} className={styles.userImage}/>
+                <Image src={user.img || '/noavatar.jpg'} alt='' width={50} height={50} className={styles.userImage}/>
+                {user.username}
               </div>
             </td>
-            <td>john@gamil.com</td>
-            <td>19.02.2024</td>
-            <td>Admin</td>
-            <td>active</td>
+            <td>{user.email}</td>
+            <td>{user?.createdAt?.toString().slice(4, 16)}</td>
+            <td>{user.isAdmin ? 'Admin' : "Client"}</td>
+            <td>{user.isActive ? 'Active' : 'Passive'}</td>
             <td>
               <div className={styles.buttons}>
-                <Link href={`/dashboard/users/1`  }>
+                <Link href={`/dashboard/users/${user._id}`  }>
                   <button className={`${styles.button} ${styles.view}`}>View</button>
                 </Link>
                   <button className={`${styles.button} ${styles.delete}`}>Delete</button>
               </div>
             </td>
           </tr>
+            })
+          }
         </tbody>
       </table>
     </div>
