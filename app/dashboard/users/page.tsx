@@ -4,11 +4,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Search from '@/app/ui/dashboard/search/search'
 import { fetchUsers } from '@/app/lib/data'
+import { IUserPromise } from '@/app/types/users'
+import Pagination from '@/app/ui/dashboard/pagination/pagination'
+import { deleteUser } from '@/app/lib/userAction'
 
-export default async function Users({searchParams}: {searchParams:{q:string}}) {
+export default async function Users({searchParams}: {searchParams:{q:string, page: string}}) {
   const q = searchParams?.q || ''
-  const users = await fetchUsers(q)
-  console.log(users, "users")
+  const page = Number(searchParams?.page) || 1
+  const results: IUserPromise | undefined = await fetchUsers(q, page)
   return (
     <div className={styles.container}>
       <div className={styles.top}>
@@ -16,7 +19,7 @@ export default async function Users({searchParams}: {searchParams:{q:string}}) {
         <Link href='/dashboard/users/add'>
           <button className={styles.addButton}>Add New</button>
         </Link>
-      </div>
+      </div> 
       <table className={styles.table}>
         <thead>
           <tr>
@@ -30,7 +33,7 @@ export default async function Users({searchParams}: {searchParams:{q:string}}) {
         </thead>
         <tbody>
           {
-            users?.map((user) => {
+            results?.users?.map((user) => {
               return <tr key={user._id}>
             <td>
               <div className={styles.user}>
@@ -47,7 +50,10 @@ export default async function Users({searchParams}: {searchParams:{q:string}}) {
                 <Link href={`/dashboard/users/${user._id}`  }>
                   <button className={`${styles.button} ${styles.view}`}>View</button>
                 </Link>
-                  <button className={`${styles.button} ${styles.delete}`}>Delete</button>
+                  <form action={deleteUser}>
+                    <input type="text" hidden name='id' value={user._id} />
+                    <button className={`${styles.button} ${styles.delete}`}>Delete</button>
+                  </form>
               </div>
             </td>
           </tr>
@@ -55,6 +61,7 @@ export default async function Users({searchParams}: {searchParams:{q:string}}) {
           }
         </tbody>
       </table>
+      <Pagination count={results?.count} />
     </div>
   )
 }
